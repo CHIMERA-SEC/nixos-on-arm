@@ -45,6 +45,12 @@
         demoFile = ./demo/nanopi-r5s-demo.nix;
         description = "FriendlyElec NanoPi R5S (RK3568)";
       };
+      renegade = {
+        hostPlatform = "aarch64-linux";
+        bootOnlyFile = ./boot/renegade-boot.nix;
+        demoFile = ./demo/renegade-demo.nix;
+        description = "ROC-RK3328-CC Renegade (RK3328)";
+      };
     };
 
     # Function to create nixosConfiguration
@@ -109,7 +115,8 @@
       (mkBoardConfigurations "rock5a") //
       (mkBoardConfigurations "orangepi5ultra") //
       (mkBoardConfigurations "nanopir6s") //
-      (mkBoardConfigurations "nanopir5s");
+      (mkBoardConfigurations "nanopir5s") //
+      (mkBoardConfigurations "renegade");
 
     # System-specific packages organized by board
     packages = forAllSystems (system:
@@ -141,6 +148,11 @@
         nanopir5s = mkImg "nanopir5s" self.demoModules.nanopir5s; # alias → demo
         nanopir5s-demo = mkImg "nanopir5s" self.demoModules.nanopir5s;
         nanopir5s-boot = mkImg "nanopir5s" self.bootModules.nanopir5s;
+
+        # --- ROC-RK3328-CC Renegade ---
+        renegade = mkImg "renegade" self.demoModules.renegade;   # alias → demo
+        renegade-demo = mkImg "renegade" self.demoModules.renegade;
+        renegade-boot = mkImg "renegade" self.bootModules.renegade;
       }
     );
 
@@ -175,6 +187,10 @@
           echo "  nix build .#nanopir5s      # Demo image (default alias)"
           echo "  nix build .#nanopir5s-demo # Explicit demo image"
           echo "  nix build .#nanopir5s-boot # Barebones boot-only image"
+          echo ""
+          echo "  nix build .#renegade      # Demo image (default alias)"
+          echo "  nix build .#renegade-demo # Explicit demo image"
+          echo "  nix build .#renegade-boot # Barebones boot-only image"
         '';
       };
     });
