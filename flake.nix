@@ -39,6 +39,12 @@
         demoFile = ./demo/nanopi-r6s-demo.nix;
         description = "FriendlyElec NanoPi R6S (RK3588S)";
       };
+      nanopir5s = {
+        hostPlatform = "aarch64-linux";
+        bootOnlyFile = ./boot/nanopi-r5s-boot.nix;
+        demoFile = ./demo/nanopi-r5s-demo.nix;
+        description = "FriendlyElec NanoPi R5S (RK3568)";
+      };
     };
 
     # Function to create nixosConfiguration
@@ -102,7 +108,8 @@
       (mkBoardConfigurations "e52c") //
       (mkBoardConfigurations "rock5a") //
       (mkBoardConfigurations "orangepi5ultra") //
-      (mkBoardConfigurations "nanopir6s");
+      (mkBoardConfigurations "nanopir6s") //
+      (mkBoardConfigurations "nanopir5s");
 
     # System-specific packages organized by board
     packages = forAllSystems (system:
@@ -129,6 +136,11 @@
         nanopir6s = mkImg "nanopir6s" self.demoModules.nanopir6s; # alias → demo
         nanopir6s-demo = mkImg "nanopir6s" self.demoModules.nanopir6s;
         nanopir6s-boot = mkImg "nanopir6s" self.bootModules.nanopir6s;
+
+        # --- NanoPi R5S ---
+        nanopir5s = mkImg "nanopir5s" self.demoModules.nanopir5s; # alias → demo
+        nanopir5s-demo = mkImg "nanopir5s" self.demoModules.nanopir5s;
+        nanopir5s-boot = mkImg "nanopir5s" self.bootModules.nanopir5s;
       }
     );
 
@@ -159,6 +171,10 @@
           echo "  nix build .#nanopir6s      # Demo image (default alias)"
           echo "  nix build .#nanopir6s-demo # Explicit demo image"
           echo "  nix build .#nanopir6s-boot # Barebones boot-only image"
+          echo ""
+          echo "  nix build .#nanopir5s      # Demo image (default alias)"
+          echo "  nix build .#nanopir5s-demo # Explicit demo image"
+          echo "  nix build .#nanopir5s-boot # Barebones boot-only image"
         '';
       };
     });
