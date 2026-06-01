@@ -22,6 +22,7 @@ in
       image = {
         name = mkOption { type = types.str; default = "nixos-rockchip"; };
         imagePaddingMB = mkOption { type = types.int; default = 100; };
+        rootfsExtraSpaceMB = mkOption { type = types.int; default = 0; description = "Extra free space (in MB) to add to the root filesystem image."; };
         fullImageBootOffsetMB = mkOption { type = types.int; default = 16; };
         osImageBootOffsetMB = mkOption { type = types.int; default = 1; };
         buildVariants = {
@@ -87,11 +88,22 @@ in
       storePaths = [ ];
     };
     
-    system.build.nixosRootfsPartitionImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
-      storePaths = [ config.system.build.toplevel ];
-      volumeLabel = "NIXOS_ROOT";
-      compressImage = false;
-    };
+    system.build.nixosRootfsPartitionImage = let
+      baseImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
+        storePaths = [ config.system.build.toplevel ];
+        volumeLabel = "NIXOS_ROOT";
+        compressImage = false;
+      };
+      extraMB = cfg.image.rootfsExtraSpaceMB;
+    in if extraMB > 0 then
+      pkgs.runCommand "ext4-fs.img" { nativeBuildInputs = [ pkgs.e2fsprogs ]; } ''
+        cp ${baseImage} $out
+        chmod +w $out
+        truncate -s +${toString extraMB}M $out
+        e2fsck -fy $out
+        resize2fs $out
+      ''
+    else baseImage;
     
     # C. Assemble the final image
     system.build.rockchipImages = assembleMonolithicImage {
