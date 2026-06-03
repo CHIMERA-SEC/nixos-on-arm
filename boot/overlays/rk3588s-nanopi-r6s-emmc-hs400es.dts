@@ -1,0 +1,38 @@
+/dts-v1/;
+/plugin/;
+
+/*
+ * NanoPi R6S eMMC speed bump: HS200 -> HS400 Enhanced Strobe.
+ *
+ * The RK3588S dwcmshc eMMC controller and the on-board eMMC both support
+ * HS400ES, and the data-strobe line is already pinmuxed in the controller's
+ * pinctrl-0 (emmc_data_strobe). The stock mainline device tree, however, only
+ * enables `mmc-hs200-1_8v`, which caps the link at HS200 (~200 MB/s) and leaves
+ * roughly half of the available eMMC bandwidth on the table.
+ *
+ * Adding the HS400 capability flags lets the MMC core negotiate the fastest
+ * mode the card advertises (HS400ES on this board). `mmc-hs200-1_8v` is left in
+ * place by the base DT as a fallback; the core always selects the highest
+ * mutually-supported mode, so the extra flag is harmless.
+ *
+ * Applied as an overlay (rather than forking the kernel's device-tree source)
+ * via hardware.deviceTree.overlays in boot/nanopi-r6s-boot.nix.
+ */
+
+/ {
+	/*
+	 * Matched against the base DTB's root `compatible` by NixOS's overlay
+	 * applier (pkgs/.../apply_overlays.py): an overlay with no compatible is
+	 * skipped whenever the base DTB *does* have one. This is used only for
+	 * the apply-time match and is not merged into the target node.
+	 */
+	compatible = "friendlyarm,nanopi-r6s";
+
+	fragment@0 {
+		target = <&sdhci>;
+		__overlay__ {
+			mmc-hs400-1_8v;
+			mmc-hs400-enhanced-strobe;
+		};
+	};
+};
