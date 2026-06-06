@@ -1,0 +1,42 @@
+# rpi4-demo.nix - Demo configuration with users, networking, and tools
+{ config, pkgs, lib, ... }:
+{
+  imports = [
+    ../boot/rpi4-boot.nix
+  ];
+
+  networking.hostName = lib.mkDefault "nixos-rpi4";
+  time.timeZone = lib.mkDefault "Etc/UTC";
+
+  users.users = {
+    root = {
+      initialPassword = "root";
+    };
+    nixos = {
+      isNormalUser = true;
+      extraGroups = [ "wheel" ];
+      initialPassword = "nixos";
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    vim
+    git
+    htop
+    tree
+    wget
+    curl
+  ];
+
+  services.openssh = {
+    enable = true;
+    settings.PermitRootLogin = "yes";
+  };
+
+  networking = {
+    networkmanager.enable = true;
+    useDHCP = lib.mkDefault true;
+  };
+
+  security.sudo.wheelNeedsPassword = false;
+}

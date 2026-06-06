@@ -53,6 +53,7 @@ Currently supports the Radxa E52C (RK3582) and Radxa Rock 5A (RK3588S), with a m
 | Radxa Rock 5A | RK3588S | `demo`, `boot` | ✅ Supported |
 | Radxa E25     | RK3568  | TBD            | 🚧 Planned  |
 | Radxa Rock 5B | RK3588  | TBD            | 🚧 Planned  |
+| Raspberry Pi 4 | BCM2711 | `demo`, `boot` | ✅ Supported |
 
 ---
 
@@ -84,6 +85,9 @@ nix build .#rock5a-boot
 | `.#rock5a`      | Alias → `rock5a-demo`                             |
 | `.#rock5a-demo` | Rock 5A with demo config                          |
 | `.#rock5a-boot` | Minimal Rock 5A boot-only image                   |
+| `.#rpi4`        | Alias → `rpi4-demo`                               |
+| `.#rpi4-demo`   | Raspberry Pi 4 with demo config                   |
+| `.#rpi4-boot`   | Minimal Raspberry Pi 4 boot-only image            |
 
 ---
 
@@ -116,7 +120,15 @@ sudo dd if=result/nixos-rockchip-full.img of=/dev/mmcblk0 bs=1M status=progress 
 
 # SD card OS-only
 sudo dd if=result/nixos-rockchip-os-only.img of=/dev/sdb bs=1M status=progress sync
+
+# Raspberry Pi 4 SD card
+sudo dd if=result/nixos-rpi-sdcard.img of=/dev/sdb bs=1M status=progress sync
 ```
+
+The Pi 4 image is a standard raw `.img` and works with **Raspberry Pi Imager**
+(Choose OS → "Use custom"), Balena Etcher, GNOME Disks, or `dd`. Pi Imager's
+WiFi/SSH customization screen is Pi-OS-only; bake those settings into the Nix
+config instead.
 
 ---
 

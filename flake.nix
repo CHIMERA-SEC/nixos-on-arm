@@ -45,6 +45,12 @@
         demoFile = ./demo/nanopi-r5s-demo.nix;
         description = "FriendlyElec NanoPi R5S (RK3568)";
       };
+      rpi4 = {
+        hostPlatform = "aarch64-linux";
+        bootOnlyFile = ./boot/rpi4-boot.nix;
+        demoFile = ./demo/rpi4-demo.nix;
+        description = "Raspberry Pi 4 (BCM2711)";
+      };
     };
 
     # Function to create nixosConfiguration
@@ -109,13 +115,16 @@
       (mkBoardConfigurations "rock5a") //
       (mkBoardConfigurations "orangepi5ultra") //
       (mkBoardConfigurations "nanopir6s") //
-      (mkBoardConfigurations "nanopir5s");
+      (mkBoardConfigurations "nanopir5s") //
+      (mkBoardConfigurations "rpi4");
 
     # System-specific packages organized by board
     packages = forAllSystems (system:
       let
         mkImg = board: modules:
           (mkBoardConfiguration board system modules).config.system.build.rockchipImages;
+        mkPiImg = board: modules:
+          (mkBoardConfiguration board system modules).config.system.build.rpiImages;
       in {
         # --- E52C ---
         e52c = mkImg "e52c" self.demoModules.e52c;   # alias → demo
@@ -141,6 +150,11 @@
         nanopir5s = mkImg "nanopir5s" self.demoModules.nanopir5s; # alias → demo
         nanopir5s-demo = mkImg "nanopir5s" self.demoModules.nanopir5s;
         nanopir5s-boot = mkImg "nanopir5s" self.bootModules.nanopir5s;
+
+        # --- Raspberry Pi 4 ---
+        rpi4 = mkPiImg "rpi4" self.demoModules.rpi4;   # alias → demo
+        rpi4-demo = mkPiImg "rpi4" self.demoModules.rpi4;
+        rpi4-boot = mkPiImg "rpi4" self.bootModules.rpi4;
       }
     );
 
@@ -175,6 +189,10 @@
           echo "  nix build .#nanopir5s      # Demo image (default alias)"
           echo "  nix build .#nanopir5s-demo # Explicit demo image"
           echo "  nix build .#nanopir5s-boot # Barebones boot-only image"
+          echo ""
+          echo "  nix build .#rpi4        # Demo image (default alias)"
+          echo "  nix build .#rpi4-demo   # Explicit demo image"
+          echo "  nix build .#rpi4-boot   # Barebones boot-only image"
         '';
       };
     });

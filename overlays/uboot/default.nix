@@ -66,4 +66,10 @@ final: prev: {
     ];
   };
 
+  ubootRaspberryPi4 = prev.buildUBoot {
+    defconfig = "rpi_4_defconfig";
+    extraMeta.platforms = [ "aarch64-linux" ];
+    filesToInstall = [ "u-boot.bin" ];
+  };
+
 }
