@@ -1,0 +1,47 @@
+/dts-v1/;
+/plugin/;
+
+/*
+ * NanoPi R6S eMMC speed bump: HS200 -> HS400 Enhanced Strobe.
+ *
+ * The RK3588S dwcmshc eMMC controller and the on-board eMMC both support
+ * HS400ES, and the data-strobe line is already pinmuxed in the controller's
+ * pinctrl-0 (emmc_data_strobe). The stock mainline device tree, however, only
+ * enables `mmc-hs200-1_8v`, which caps the link at HS200 (~200 MB/s) and leaves
+ * roughly half of the available eMMC bandwidth on the table.
+ *
+ * Adding the HS400 capability flags lets the MMC core negotiate the fastest
+ * mode the card advertises (HS400ES on this board). `mmc-hs200-1_8v` is left in
+ * place by the base DT as a fallback; the core always selects the highest
+ * mutually-supported mode, so the extra flag is harmless. `max-frequency`
+ * stays at 200 MHz -- HS400 doubles throughput via DDR, not via a faster clock.
+ *
+ * The R6S is an outlier here: 43 of the 48 rk3588-family DTBs the kernel ships
+ * already declare HS400ES, including FriendlyELEC's own NanoPC-T6 and CM3588.
+ * As of linux-next this board still has HS200 only; if that changes upstream,
+ * this overlay becomes a redundant no-op and should be dropped.
+ *
+ * Applied as an overlay (rather than forking the kernel's device-tree source)
+ * via hardware.deviceTree.overlays in boot/nanopi-r6s-boot.nix.
+ */
+
+/ {
+	/*
+	 * Matched against the base DTB's root `compatible` by NixOS's overlay
+	 * applier (pkgs/.../apply_overlays.py): an overlay with no compatible is
+	 * skipped whenever the base DTB *does* have one. This is used only for
+	 * the apply-time match and is not merged into the target node -- libfdt's
+	 * overlay_merge() only walks the __overlay__ subnode of each fragment, so
+	 * the base root keeps its own "friendlyarm,nanopi-r6s", "rockchip,rk3588s".
+	 */
+	compatible = "friendlyarm,nanopi-r6s";
+};
+
+/*
+ * dtc's /plugin/ syntax expands this into the same fragment@0 + __fixups__
+ * that writing the fragment out by hand would produce.
+ */
+&sdhci {
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+};
