@@ -3,13 +3,13 @@ final: prev: {
     pname = "uboot-rk3582-generic";
     defconfig = "generic-rk3588_defconfig";
     
-    extraPatches = [
-      ./patches/0001-rockchip-Add-initial-RK3582-support.patch
-      ./patches/0002-rockchip-rk3588-generic-Enable-support-for-RK3582.patch
-    ];
+    # RK3582 support (formerly patches/000{1,2}) is upstream as of U-Boot 2026.07.
 
-    BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
-    ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    # buildUBoot uses __structuredAttrs, so these must go through env to reach make
+    env = {
+      BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
+      ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    };
     
     filesToInstall = [
       "u-boot.itb"
@@ -25,8 +25,10 @@ final: prev: {
   ubootRock5ModelA = prev.buildUBoot {
     defconfig = "rock5a-rk3588s_defconfig";
     extraMeta.platforms = [ "aarch64-linux" ];
-    BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
-    ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    env = {
+      BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
+      ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    };
     filesToInstall = [
       "u-boot.itb"
       "idbloader.img"
@@ -44,8 +46,10 @@ final: prev: {
     };
     defconfig = "orangepi-5-ultra-rk3588_defconfig";
     extraMeta.platforms = [ "aarch64-linux" ];
-    BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
-    ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    env = {
+      BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
+      ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    };
     filesToInstall = [
       "u-boot.itb"
       "idbloader.img"
@@ -57,8 +61,10 @@ final: prev: {
   ubootNanopiR6S = prev.buildUBoot {
     defconfig = "nanopi-r6s-rk3588s_defconfig";
     extraMeta.platforms = [ "aarch64-linux" ];
-    BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
-    ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    env = {
+      BL31 = "${prev.armTrustedFirmwareRK3588}/bl31.elf";
+      ROCKCHIP_TPL = prev.rkbin.TPL_RK3588;
+    };
     filesToInstall = [
       "u-boot.itb"
       "idbloader.img"
